@@ -72,3 +72,64 @@ LBB1_3:
         add     sp, sp, #48
         ret
 ```
+
+# cheap VPS on x86
+
+```asm
+=== static_dispatch ===
+_RNvCs1bt5ya80skn_30rust_dynamic_dispatch_overhead15static_dispatch:
+        pushq   %r15
+        pushq   %r14
+        pushq   %rbx
+        subq    $16, %rsp
+        movq    %rdx, %rax
+        movq    %rdi, 8(%rsp)
+        leaq    8(%rsp), %rcx
+        #APP
+        #NO_APP
+        testq   %rsi, %rsi
+        je      .LBB0_3
+        movq    %rsi, %rbx
+        movq    8(%rsp), %r14
+         # Load address of Transform::apply into r15
+        movq    _RNvXCs1bt5ya80skn_30rust_dynamic_dispatch_overheadNtB2_9TransformNtB2_9Operation5apply@GOTPCREL(%rip), %r15
+.LBB0_2:
+        movq    %r14, %rdi
+        movq    %rax, %rsi
+        callq   *%r15 # Call Transform::apply through fixed function pointer
+        decq    %rbx
+        jne     .LBB0_2
+.LBB0_3:
+        addq    $16, %rsp
+        popq    %rbx
+        popq    %r14
+        popq    %r15
+        retq
+.Lfunc_end0:
+
+=== vtable_dispatch ===
+_RNvCs1bt5ya80skn_30rust_dynamic_dispatch_overhead15vtable_dispatch:
+        pushq   %rbx
+        subq    $16, %rsp
+        movq    %rcx, %rax
+        movq    %rdi, (%rsp)
+        movq    %rsi, 8(%rsp)
+        movq    %rsp, %rcx
+        #APP
+        #NO_APP
+        testq   %rdx, %rdx
+        je      .LBB1_3
+        movq    %rdx, %rbx
+.LBB1_2:
+        movq    (%rsp), %rdi   # Load trait object's data pointer into %rdi
+        movq    8(%rsp), %rcx  # Load trait object's vtable pointer into %rcx
+        movq    %rax, %rsi     # Move current value/result into %rsi
+        callq   *24(%rcx)      # Indirect call through the vtable
+        decq    %rbx
+        jne     .LBB1_2
+.LBB1_3:
+        addq    $16, %rsp
+        popq    %rbx
+        retq
+.Lfunc_end1:
+```
