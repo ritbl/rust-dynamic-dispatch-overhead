@@ -1,0 +1,2 @@
+[alias]
+asm = "run --quiet --bin asm"
